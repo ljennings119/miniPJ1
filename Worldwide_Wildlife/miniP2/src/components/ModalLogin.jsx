@@ -65,7 +65,7 @@ export default function ModalLogin({ show, onClose, onLogin }) {
           Login
         </button>
 
-        {/* ✅ Create Account link in modal */}
+        {/* Create Account link in modal */}
         <p style={{ marginTop: "1rem" }}>
           Don’t have an account?{" "}
           <Link

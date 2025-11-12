@@ -44,7 +44,7 @@ export default function CreateLogin() {
       return;
     }
 
-    // Save user in localStorage (simple simulation)
+    // Save user in localStorage 
     const user = { email, password };
     localStorage.setItem("user", JSON.stringify(user));
 
