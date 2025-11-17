@@ -8,14 +8,57 @@ export default function Login({ setIsLoggedIn }) {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const MAX_ATTEMPTS = 3;
+  const LOCKOUT_TIME = 60 * 1000; // 1 minute lockout
+
+  // 🔹 Email Validator
+  const validateEmail = (email) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+  // 🔹 Password Validator — SAME as CreateLogin.jsx
+  const validatePassword = (password) => {
+    return (
+      /[A-Z]/.test(password) && // uppercase
+      /[a-z]/.test(password) && // lowercase
+      /\d/.test(password) && // number
+      /[!@#$%^&*(),.?":{}|<>]/.test(password) && // special character
+      password.length >= 8
+    );
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     setError("");
 
+    // 🔒Check lockout
+    const lockout = localStorage.getItem("lockoutTime");
+    if (lockout) {
+      const lockoutEnd = parseInt(lockout);
+
+      if (Date.now() < lockoutEnd) {
+        const secondsLeft = Math.ceil((lockoutEnd - Date.now()) / 1000);
+        setError(
+          `Too many attempts. Try again in ${secondsLeft} seconds.`
+        );
+        return;
+      } else {
+        // Reset after lockout expires
+        localStorage.removeItem("lockoutTime");
+        localStorage.removeItem("loginAttempts");
+      }
+    }
+
+    // ❗ Validate email
     if (!validateEmail(email)) {
       setError("Please enter a valid email (must include '@' and '.com').");
+      return;
+    }
+
+    // ❗ Validate password strength
+    if (!validatePassword(password)) {
+      setError(
+        "Password must be at least 8 characters long and include uppercase, lowercase, number, and special character."
+      );
       return;
     }
 
@@ -25,11 +68,35 @@ export default function Login({ setIsLoggedIn }) {
       return;
     }
 
+    // SUCCESS — credentials match
     if (savedUser.email === email && savedUser.password === password) {
+      localStorage.removeItem("loginAttempts");
+      localStorage.removeItem("lockoutTime");
+
       setIsLoggedIn(true);
       navigate("/cool-facts");
     } else {
-      setError("Incorrect email or password.");
+      // FAILED attempt
+      let attempts =
+        parseInt(localStorage.getItem("loginAttempts")) || 0;
+      attempts++;
+      localStorage.setItem("loginAttempts", attempts);
+
+      if (attempts >= MAX_ATTEMPTS) {
+        const lockoutEnd = Date.now() + LOCKOUT_TIME;
+        localStorage.setItem("lockoutTime", lockoutEnd);
+        setError(
+          `Too many failed attempts. You are locked out for ${
+            LOCKOUT_TIME / 1000
+          } seconds.`
+        );
+      } else {
+        setError(
+          `Incorrect email or password. Attempts left: ${
+            MAX_ATTEMPTS - attempts
+          }`
+        );
+      }
     }
   };
 
@@ -40,6 +107,7 @@ export default function Login({ setIsLoggedIn }) {
         {error && (
           <p style={{ color: "red", fontWeight: "bold" }}>{error}</p>
         )}
+
         <label>Email</label>
         <input
           type="text"
