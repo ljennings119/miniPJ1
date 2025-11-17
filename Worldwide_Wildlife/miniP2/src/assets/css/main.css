@@ -43,7 +43,7 @@ body {
   top: 1rem;
   right: 1.5rem;
   z-index: 2000;
-  background: rgba(0, 0, 0, 0.7);
+  background: #53c1fc;
   color: #ffffff;
   border: 2px solid #ffffff;
   border-radius: 6px;
@@ -72,7 +72,7 @@ body {
   right: -260px;
   width: 260px;
   height: 100%;
-  background: rgba(0, 0, 0, 0.95);
+  background: #53c1fc;
   transition: right 0.35s ease;
   padding-top: 6rem;
   z-index: 1500;

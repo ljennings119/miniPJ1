@@ -40,7 +40,7 @@ function App() {
         <Route path="/create-login" element={<CreateLogin />} />
         <Route path="/login" element={<Login setIsLoggedIn={setIsLoggedIn} />} />
 
-        {/* Protected Route Example */}
+        {/* Protected Route */}
         <Route
           path="/cool-facts"
           element={
